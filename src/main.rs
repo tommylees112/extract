@@ -53,9 +53,12 @@ fn run() -> Result<(), Box<dyn Error>> {
     let selectors = ["article", "main", "body"];
     let mut found_content = false;
 
+    // Print the URL to the top of the page
+    println!("URL: {}", url);
     for selector_str in &selectors {
         let selector = Selector::parse(selector_str)?;
         for element in document.select(&selector) {
+            // Collect text from the selected element
             let text = element.text().collect::<Vec<_>>().join(" ");
             if !text.trim().is_empty() {
                 println!("{}", text);
@@ -63,8 +66,20 @@ fn run() -> Result<(), Box<dyn Error>> {
                 break;
             }
         }
+
         if found_content {
             break;
+        }
+    }
+
+    // Select and print links as Markdown
+    println!("\n*Links*");
+    let link_selector = Selector::parse("a")?;
+    for element in document.select(&link_selector) {
+        if let Some(href) = element.value().attr("href") {
+            let mut link_text = element.text().collect::<Vec<_>>().join(" ");
+            link_text = link_text.trim().to_string();
+            println!("[{}]({})", link_text, href);
         }
     }
 
