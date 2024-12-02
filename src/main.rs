@@ -15,7 +15,7 @@ struct Args {
     url: String,
     
     /// Convert output to markdown using LLM
-    #[arg(long, short)]
+    #[arg(long, short, alias = "md")]
     markdown: bool,
 }
 
@@ -99,12 +99,25 @@ async fn run() -> Result<(), Box<dyn Error>> {
         }
     }
 
-    // Convert to markdown if requested
+    // Only print the markdown version if requested, otherwise print original
     if args.markdown {
         let markdown = markdown_converter::convert_to_markdown(&output).await?;
         println!("{}", markdown);
     } else {
+        // Print URL and original content
+        println!("URL: {}", url);
         println!("{}", output);
+        
+        // Print links section
+        println!("\n*Links*");
+        let link_selector = Selector::parse("a")?;
+        for element in document.select(&link_selector) {
+            if let Some(href) = element.value().attr("href") {
+                let mut link_text = element.text().collect::<Vec<_>>().join(" ");
+                link_text = link_text.trim().to_string();
+                println!("[{}]({})", link_text, href);
+            }
+        }
     }
 
     Ok(())
