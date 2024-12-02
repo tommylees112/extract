@@ -1,8 +1,11 @@
 use clap::Parser;
-use reqwest::blocking::Client;
+use reqwest::Client;
 use reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 use scraper::{Html, Selector};
 use std::error::Error;
+
+mod markdown_converter;
+use markdown_converter::convert_to_markdown;
 
 /// Simple program to extract text from a webpage
 #[derive(Parser, Debug)]
@@ -10,19 +13,15 @@ use std::error::Error;
 struct Args {
     /// URL of the webpage to extract text from
     url: String,
+    
+    /// Convert output to markdown using LLM
+    #[arg(long, short)]
+    markdown: bool,
 }
 
-fn main() {
-    if let Err(err) = run() {
-        eprintln!("Error: {}", err);
-        std::process::exit(1);
-    }
-}
-
-fn run() -> Result<(), Box<dyn Error>> {
-    // Parse command-line arguments using clap::Parser
+async fn run() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
-
+    
     // Validate the URL
     let url = args.url;
     let parsed_url = reqwest::Url::parse(&url)?;
@@ -36,7 +35,7 @@ fn run() -> Result<(), Box<dyn Error>> {
     let client = Client::builder().default_headers(headers).build()?;
 
     // Fetch the webpage content
-    let res = client.get(parsed_url).send()?;
+    let res = client.get(parsed_url).send().await?;
 
     // Check if the request was successful
     if !res.status().is_success() {
@@ -44,7 +43,7 @@ fn run() -> Result<(), Box<dyn Error>> {
     }
 
     // Get the response body as text
-    let body = res.text()?;
+    let body = res.text().await?;
 
     // Parse the HTML
     let document = Html::parse_document(&body);
@@ -87,5 +86,34 @@ fn run() -> Result<(), Box<dyn Error>> {
         return Err("No suitable content found.".into());
     }
 
+    let mut output = String::new();
+    for selector_str in &selectors {
+        let selector = Selector::parse(selector_str)?;
+        for element in document.select(&selector) {
+            // Collect text from the selected element
+            let text = element.text().collect::<Vec<_>>().join(" ");
+            if !text.trim().is_empty() {
+                output.push_str(&text);
+                output.push('\n');
+            }
+        }
+    }
+
+    // Convert to markdown if requested
+    if args.markdown {
+        let markdown = markdown_converter::convert_to_markdown(&output).await?;
+        println!("{}", markdown);
+    } else {
+        println!("{}", output);
+    }
+
     Ok(())
+}
+
+#[tokio::main]
+async fn main() {
+    if let Err(err) = run().await {
+        eprintln!("Error: {}", err);
+        std::process::exit(1);
+    }
 }
