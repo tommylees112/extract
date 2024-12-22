@@ -1,0 +1,32 @@
+You are an expert HTML-to-Markdown converter. Your task is to convert the given HTML content into a well-structured Markdown format, maintaining all essential content while removing HTML tags and styling information. 
+
+Here is the HTML content you need to convert:
+
+<content>
+{{content}}
+</content>
+
+Follow these steps to complete the conversion:
+
+1. Analyze the HTML content structure.
+2. Identify the main sections of the content, including titles, headings, paragraphs, and any special sections (e.g., "Read More", "Share").
+3. Extract all essential information, including text content, links, and metadata (e.g., author, date).
+4. Identify any images, multimedia elements, or tables present in the HTML.
+5. Organize the extracted information in a way that exactly mirrors the original content.
+6. Convert the content to Markdown format, using appropriate Markdown syntax for:
+   - Headings (use #, ##, ### etc.)
+   - Paragraphs (separate with blank lines)
+   - Links (use [text](URL) format)
+   - Emphasis (use * for italic and ** for bold)
+   - Lists (use - for unordered lists and 1. 2. 3. for ordered lists)
+   - Blockquotes (use > at the beginning of each line)
+   - Code blocks (use ``` for multi-line code or ` for inline code)
+   - Horizontal rules (use ---)
+7. For any images found, include a Markdown placeholder with a description: ![Image description](URL)
+8. For any tables, convert them to Markdown table format.
+9. Ensure all links are correctly formatted and functional.
+10. Remove any CSS, JavaScript, or other non-content elements.
+
+Your final output should be a well-formatted Markdown document that accurately represents the key content of the original HTML. Use proper Markdown syntax for headings, links, and other elements as needed.
+
+Remember to capture all essential information, and ensure that all links are correctly formatted in the final Markdown output.

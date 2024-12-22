@@ -2,6 +2,9 @@
 
 This is a simple Rust command-line application that extracts text and links from a specified webpage. It uses the `clap` crate for command-line argument parsing, `reqwest` for HTTP requests, and `scraper` for HTML parsing.
 
+TODO:
+- integrate the markdown converter tool from microsoft https://github.com/microsoft/markitdown
+
 ## Features
 
 - Extracts text content from `article`, `main`, or `body` elements of a webpage.
